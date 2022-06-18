@@ -9,9 +9,9 @@ services:
       labels:
         - traefik.enable=true
         - traefik.docker.network=metrics
-        - traefik.http.routers.promhtz.rule=Host(`prometheus.teste.com`)
-        - traefik.http.routers.promhtz.entrypoints=web
-        - traefik.http.services.promhtz.loadbalancer.server.port=9090
+        - traefik.http.routers.prometheus.rule=Host(`prometheus.teste.com`)
+        - traefik.http.routers.prometheus.entrypoints=web
+        - traefik.http.services.prometheus.loadbalancer.server.port=9090
       resources:
         limits:
           cpus: "2"
