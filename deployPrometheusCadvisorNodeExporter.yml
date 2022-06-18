@@ -1,0 +1,175 @@
+version: '3.7'
+services:
+########################################################################## Prometheus INICIO
+  prometheus:
+    image: prom/prometheus:latest
+    hostname: prometheus.teste.com
+    user: "0"
+    deploy:
+      labels:
+        - traefik.enable=true
+        - traefik.docker.network=metrics
+        - traefik.http.routers.promhtz.rule=Host(`prometheus.teste.com`)
+        - traefik.http.routers.promhtz.entrypoints=web
+        - traefik.http.services.promhtz.loadbalancer.server.port=9090
+      resources:
+        limits:
+          cpus: "2"
+          memory: "512M"
+      placement:
+        constraints: [node.role == manager]
+    volumes:
+      - type: bind
+        source: "/opt/docker/prometheus/prometheus.yml"
+        target: "/etc/prometheus/prometheus.yml"
+      - type: bind
+        source: "/opt/docker/prometheus/data"
+        target: "/prometheus"
+    extra_hosts:
+      - "ca.manager.teste.com:192.168.2.2"
+      - "ne.manager.teste.com:192.168.2.2"
+      - "ca.node1.teste.com:192.168.2.2"
+      - "ca.node2.teste.com:192.168.2.2"
+      - "ne.node1.teste.com:192.168.2.2"
+      - "ne.node2.teste.com:192.168.2.2"
+      - "prometheus.teste.com:192.168.2.2"
+    command:
+      - '--storage.tsdb.retention.time=5d'
+      - '--config.file=/etc/prometheus/prometheus.yml'
+    networks:
+      - metrics
+    environment:
+      TZ: "America/Sao_Paulo"
+########################################################################## Prometheus FIM
+  cadvisor-manager:
+    image: google/cadvisor:latest
+    hostname: ca.manager.teste.com
+    deploy:
+      labels:
+        - traefik.enable=true
+        - traefik.docker.network=metrics
+        - traefik.http.routers.ca_manager.rule=Host(`ca.manager.teste.com`)
+        - traefik.http.routers.ca_manager.entrypoints=web
+        - traefik.http.services.ca_manager.loadbalancer.server.port=8080
+      placement:
+        constraints: [node.role == manager]
+      resources:
+        limits:
+          cpus: "2"
+          memory: "256M"
+    volumes:
+    - /:/rootfs:ro
+    - /var/run:/var/run:rw
+    - /sys:/sys:ro
+    - /dev/disk/:/dev/disk:ro
+    - /var/lib/docker/:/var/lib/docker:ro
+    networks:
+      - metrics
+      
+  node-exporter-manager:
+    image: prom/node-exporter
+    hostname: ne.manager.teste.com
+    deploy:
+      labels:
+        - traefik.enable=true
+        - traefik.docker.network=metrics
+        - traefik.http.routers.ne_manager.rule=Host(`ne.manager.teste.com`)
+        - traefik.http.routers.ne_manager.entrypoints=web
+        - traefik.http.services.ne_manager.loadbalancer.server.port=9100
+      placement:
+        constraints: [node.role == manager]
+      resources:
+        limits:
+          cpus: "2"
+          memory: "256M"
+    networks:
+      - metrics
+###no1
+  cadvisor-node1:
+    image: google/cadvisor:latest
+    hostname: ca.node1.teste.com
+    deploy:
+      labels:
+        - traefik.enable=true
+        - traefik.docker.network=metrics
+        - traefik.http.routers.ca_node1.rule=Host(`ca.node1.teste.com`)
+        - traefik.http.routers.ca_node1.entrypoints=web
+        - traefik.http.services.ca_node1.loadbalancer.server.port=8080
+      placement:
+        constraints: [node.hostname == node1]
+      resources:
+        limits:
+          cpus: "2"
+          memory: "256M"
+    volumes:
+    - /:/rootfs:ro
+    - /var/run:/var/run:rw
+    - /sys:/sys:ro
+    - /dev/disk/:/dev/disk:ro
+    - /var/lib/docker/:/var/lib/docker:ro
+    networks:
+      - metrics
+  node-exporter-node1:
+    image: prom/node-exporter
+    hostname: ne.node1.teste.com
+    deploy:
+      labels:
+        - traefik.enable=true
+        - traefik.docker.network=metrics
+        - traefik.http.routers.ne_node1.rule=Host(`ne.node1.teste.com`)
+        - traefik.http.routers.ne_node1.entrypoints=web
+        - traefik.http.services.ne_node1.loadbalancer.server.port=9100
+      placement:
+        constraints: [node.hostname == node1]
+      resources:
+        limits:
+          cpus: "2"
+          memory: "256M"
+    networks:
+      - metrics
+###No2
+  cadvisor-node2:
+    image: google/cadvisor:latest
+    hostname: ca.node2.teste.com
+    deploy:
+      labels:
+        - traefik.enable=true
+        - traefik.docker.network=metrics
+        - traefik.http.routers.ca_node2.rule=Host(`ca.node2.teste.com`)
+        - traefik.http.routers.ca_node2.entrypoints=web
+        - traefik.http.services.ca_node2.loadbalancer.server.port=8080
+      placement:
+        constraints: [node.hostname == node2]
+      resources:
+        limits:
+          cpus: "2"
+          memory: "256M"
+    volumes:
+    - /:/rootfs:ro
+    - /var/run:/var/run:rw
+    - /sys:/sys:ro
+    - /dev/disk/:/dev/disk:ro
+    - /var/lib/docker/:/var/lib/docker:ro
+    networks:
+      - metrics
+  node-exporter-node2:
+    image: prom/node-exporter
+    hostname: ne.node2.teste.com
+    deploy:
+      labels:
+        - traefik.enable=true
+        - traefik.docker.network=metrics
+        - traefik.http.routers.ne_node2.rule=Host(`ne.node2.teste.com`)
+        - traefik.http.routers.ne_node2.entrypoints=web
+        - traefik.http.services.ne_node2.loadbalancer.server.port=9100
+      placement:
+        constraints: [node.hostname == node2]
+      resources:
+        limits:
+          cpus: "2"
+          memory: "256M"
+    networks:
+      - metrics
+networks:
+  metrics:
+    external: true
