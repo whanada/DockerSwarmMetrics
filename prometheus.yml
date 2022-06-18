@@ -1,0 +1,28 @@
+global:
+    scrape_interval: 5s
+    external_labels:
+      monitor: 'Monitoring'
+scrape_configs:
+    - job_name: 'prometheus'
+      static_configs:
+        - targets: ['prometheus.teste.com:80']
+    - job_name: 'node-exporter-manager'
+      static_configs:
+        - targets: ['ne.manager.teste.com:80']
+    - job_name: 'cAdvisor-manager'
+      static_configs:
+        - targets: ['ca.manager.teste.com:80']
+  #node1
+    - job_name: 'node-exporter-n1-swm1'
+      static_configs:
+        - targets: ['ne.node1.teste.com:80']
+    - job_name: 'cAdvisor-n1-swm1'
+      static_configs:
+        - targets: ['ca.node1.teste.com:80']
+  #node2
+    - job_name: 'node-exporter-n2-swm1'
+      static_configs:
+        - targets: ['ne.node2.teste.com:80']
+    - job_name: 'cAdvisor-n2-swm1'
+      static_configs:
+        - targets: ['ca.node2.teste.com:80']
